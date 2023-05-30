@@ -132,5 +132,5 @@ func resizeImage(imagePath, saveDirPath string, width, height, quality uint) err
 		return errors.New("unknown file format")
 	}
 
-	return errors.New("resizeImage: unexpected error")
+	return nil //errors.New("resizeImage: unexpected error")
 }
