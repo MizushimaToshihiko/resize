@@ -8,6 +8,7 @@ import (
 	"image/jpeg"
 	"image/png"
 	"log"
+	"math"
 	"os"
 	"path/filepath"
 	"strings"
@@ -29,15 +30,15 @@ func main() {
 	var imagePath string
 	var saveDirPath string
 
-	var width uint
-	var height uint
-	var quality uint
+	var width float64
+	var height float64
+	var quality int
 
 	flag.StringVar(&imagePath, "imdir", "image/", "the directory or file path for images")
 	flag.StringVar(&saveDirPath, "svdir", "thumbnail/", "the directory path to save")
-	flag.UintVar(&width, "wid", 0, "the width to resize")
-	flag.UintVar(&height, "hei", 0, "th height to resize")
-	flag.UintVar(&quality, "q", 80, "the quality to resize")
+	flag.Float64Var(&width, "wid", 0, "the width to resize")
+	flag.Float64Var(&height, "hei", 0, "th height to resize")
+	flag.IntVar(&quality, "q", 80, "the quality to resize")
 	flag.Parse()
 
 	if err := run(imagePath, saveDirPath, width, height, quality); err != nil {
@@ -45,7 +46,7 @@ func main() {
 	}
 }
 
-func run(imagePath, saveDirPath string, width, height, quality uint) error {
+func run(imagePath, saveDirPath string, width, height float64, quality int) error {
 	// ファイル情報取得
 	fileinfo, err := os.Stat(imagePath)
 	if err != nil {
@@ -57,7 +58,7 @@ func run(imagePath, saveDirPath string, width, height, quality uint) error {
 		return resizeImage(imagePath, saveDirPath, width, height, quality)
 	}
 
-	fmt.Println("フォルダだった")
+	fmt.Println("directory")
 	// フォルダだったら拡張子jpeg,jpg,pngのものを抜き出して繰り返し実行
 	files, err := os.ReadDir(imagePath)
 	if err != nil {
@@ -88,7 +89,7 @@ func run(imagePath, saveDirPath string, width, height, quality uint) error {
 	return nil
 }
 
-func resizeImage(imagePath, saveDirPath string, width, height, quality uint) error {
+func resizeImage(imagePath, saveDirPath string, width, height float64, quality int) error {
 	// 元の画像の読み込み
 	file := imagePath
 	fileData, err := os.Open(file)
@@ -98,15 +99,28 @@ func resizeImage(imagePath, saveDirPath string, width, height, quality uint) err
 
 	// 画像をimage.Image型にdecodeします
 	img, data, err := image.Decode(fileData)
-	fmt.Println("data:", data)
 	if err != nil {
 		return fmt.Errorf("resizeImage: image.Decode: %v", err)
 	}
+	fmt.Printf("%s: data: %s\n", filepath.Base(imagePath), data)
+	fmt.Printf("%s: image width: %d\n", filepath.Base(imagePath), img.Bounds().Dx())
+	fmt.Printf("%s: image height: %d\n", filepath.Base(imagePath), img.Bounds().Dy())
 	fileData.Close()
+
+	widthInt := uint(width)
+	heightInt := uint(height)
+	if width != 0 {
+		widthInt = uint(math.Round(float64(img.Bounds().Dx()) / width))
+	}
+	if height != 0 {
+		heightInt = uint(math.Round(float64(img.Bounds().Dy()) / height))
+	}
 
 	// ここでリサイズします
 	// 片方のサイズを0にするとアスペクト比固定してくれます
-	resizedImg := resize.Resize(width, height, img, resize.NearestNeighbor)
+	resizedImg := resize.Resize(widthInt, heightInt, img, resize.NearestNeighbor)
+	fmt.Printf("%s: resized image width: %d\n", filepath.Base(imagePath), resizedImg.Bounds().Dx())
+	fmt.Printf("%s: resized image height: %d\n", filepath.Base(imagePath), resizedImg.Bounds().Dy())
 
 	// 書き出すファイル名を指定します
 	createFilePath := saveDirPath + filepath.Base(imagePath) // + "." + data
@@ -114,6 +128,7 @@ func resizeImage(imagePath, saveDirPath string, width, height, quality uint) err
 	if err != nil {
 		return fmt.Errorf("resizeImage: os.Create: %v", err)
 	}
+	fmt.Println("save as:", createFilePath)
 	// 最後にファイルを閉じる
 	defer output.Close()
 
