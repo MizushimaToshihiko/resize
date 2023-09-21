@@ -10,6 +10,7 @@ import (
 	"log"
 	"math"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -123,7 +124,7 @@ func resizeImage(imagePath, saveDirPath string, width, height float64, quality i
 	fmt.Printf("%s: resized image height: %d\n", filepath.Base(imagePath), resizedImg.Bounds().Dy())
 
 	// 書き出すファイル名を指定します
-	createFilePath := saveDirPath + filepath.Base(imagePath) // + "." + data
+	createFilePath := path.Join(saveDirPath, filepath.Base(imagePath)) // + "." + data
 	output, err := os.Create(createFilePath)
 	if err != nil {
 		return fmt.Errorf("resizeImage: os.Create: %v", err)
