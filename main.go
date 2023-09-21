@@ -18,16 +18,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-// ここに元データのファイル名を書きます。
-var imageName = "sakura.jpg"
-
-// 変更後のファイル名を書きます。
-var thumbnailName = "sakura-thumbnail"
-
 func main() {
-	// ログ設定
-	log.SetFlags(log.Lshortfile)
-
 	var imagePath string
 	var saveDirPath string
 
@@ -37,8 +28,8 @@ func main() {
 
 	flag.StringVar(&imagePath, "imdir", "image/", "the directory or file path for images")
 	flag.StringVar(&saveDirPath, "svdir", "thumbnail/", "the directory path to save")
-	flag.Float64Var(&width, "wid", 0, "the width to resize")
-	flag.Float64Var(&height, "hei", 0, "th height to resize")
+	flag.Float64Var(&width, "wid", 0, "Specify what fraction of the original image to reduce width")
+	flag.Float64Var(&height, "hei", 0, "Specify what fraction of the original image to reduce height")
 	flag.IntVar(&quality, "q", 80, "the quality to resize")
 	flag.Parse()
 
