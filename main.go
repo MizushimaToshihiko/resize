@@ -28,8 +28,8 @@ func main() {
 
 	flag.StringVar(&imagePath, "imdir", "image/", "the directory or file path for images")
 	flag.StringVar(&saveDirPath, "svdir", "thumbnail/", "the directory path to save")
-	flag.Float64Var(&width, "wid", 0, "Specify what fraction of the original image to reduce width")
-	flag.Float64Var(&height, "hei", 0, "Specify what fraction of the original image to reduce height")
+	flag.Float64Var(&width, "wid", 0, "Specify what the denominator of the original image width.\nThe height will also be adjusted to match the aspect ratio of the original image")
+	flag.Float64Var(&height, "hei", 0, "Specify what the denominator of the original image height.\nThe width will also be adjusted to match the aspect ratio of the original image")
 	flag.IntVar(&quality, "q", 80, "the quality to resize")
 	flag.Parse()
 
